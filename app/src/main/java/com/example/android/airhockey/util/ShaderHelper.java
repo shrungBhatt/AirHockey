@@ -1,6 +1,5 @@
 package com.example.android.airhockey.util;
 
-import android.opengl.GLES20;
 
 import static android.opengl.GLES20.*;
 
@@ -43,5 +42,40 @@ public class ShaderHelper {
         return shaderObjectId;
     }
 
+    public static int linkProgram(int vertexShaderId,int fragmentShaderId){
+        final int programObjectId = glCreateProgram();
+
+        if(programObjectId == 0){
+            LoggerConfig.log(TAG,"Could not create new program");
+            return 0;
+        }
+
+        glAttachShader(programObjectId,vertexShaderId);
+        glAttachShader(programObjectId,fragmentShaderId);
+
+        glLinkProgram(programObjectId);
+
+        final int linkStatus[] = new int[1];
+        glGetProgramiv(programObjectId,GL_LINK_STATUS,linkStatus,0);
+
+        if(linkStatus[0] == 0){
+
+            LoggerConfig.log(TAG,"Linking of program failed" + "\n" +
+                    glGetProgramInfoLog(programObjectId));
+
+            return 0;
+        }
+
+        return programObjectId;
+    }
+
+    public static boolean validateProgram(int programObjectId){
+        glValidateProgram(programObjectId);
+
+        final int validateResult[] = new int[1];
+        glGetShaderiv(programObjectId,GL_VALIDATE_STATUS,validateResult,0);
+
+       return validateResult[0] != 0;
+    }
 
 }

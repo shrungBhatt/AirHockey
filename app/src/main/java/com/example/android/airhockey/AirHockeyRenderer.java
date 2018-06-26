@@ -3,6 +3,7 @@ package com.example.android.airhockey;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 
+import com.example.android.airhockey.util.ShaderHelper;
 import com.example.android.airhockey.util.TextResourceReader;
 
 import java.nio.ByteBuffer;
@@ -62,6 +63,9 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
         final String fragmentShaderSource = TextResourceReader.readTextFileFromResource(mContext,
                 R.raw.simple_fragment_shader);
+
+        int vertexShader = ShaderHelper.compileVertexShader(vertexShaderSource);
+        int fragmentShader = ShaderHelper.compileVertexShader(fragmentShaderSource);
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 
 import com.example.android.airhockey.util.LoggerConfig;
+import com.example.android.airhockey.util.MatrixHelper;
 import com.example.android.airhockey.util.ShaderHelper;
 import com.example.android.airhockey.util.TextResourceReader;
 
@@ -39,6 +40,7 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
     private static final String UNIFORM_MATRIX = "u_Matrix";
 
     private final float[] projectionMatrix = new float[16];
+    private final float[] modelMatrix = new float[16];
 
 
     public AirHockeyRenderer(Context context) {
@@ -114,7 +116,7 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         glViewport(0, 0, width, height);
 
-        final float aspectRatio = width > height ? (float) width / (float) height :
+       /* final float aspectRatio = width > height ? (float) width / (float) height :
                 (float) height / (float) width;
 
         if(width > height){
@@ -124,7 +126,20 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
         }else{
             orthoM(projectionMatrix,0,-1f,1f,-aspectRatio,aspectRatio,
                     -1f,1f);
-        }
+        }*/
+
+        MatrixHelper.perspectiveM(projectionMatrix, 45,
+                (float) width / (float) height, 1f, 10f);
+
+        setIdentityM(modelMatrix,0);
+
+        translateM(modelMatrix, 0, 0f, 0f, -2.8f);
+        rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f);
+
+        final float[] temp = new float[16];
+        multiplyMM(temp,0,projectionMatrix,0,modelMatrix,0);
+        System.arraycopy(temp,0,projectionMatrix,0,temp.length);
+
 
     }
 
@@ -132,7 +147,7 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl10) {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUniformMatrix4fv(mUniformMatrixLocation,1,false,projectionMatrix,0);
+        glUniformMatrix4fv(mUniformMatrixLocation, 1, false, projectionMatrix, 0);
         //draw the rectangle
 //        glUniform4f(mUniformColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 6);

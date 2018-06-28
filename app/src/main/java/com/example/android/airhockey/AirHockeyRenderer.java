@@ -21,35 +21,38 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = "AirHockeyRenderer";
 
     private final int POSITION_COMPONENT_COUNT = 2;
+    private final int COLOR_COMPONENT_COUNT = 3;
     private final int BYTES_PER_FLOAT = 4;
+    private final int STRIDE = (POSITION_COMPONENT_COUNT + COLOR_COMPONENT_COUNT) * BYTES_PER_FLOAT;
     private final FloatBuffer vertexData;
     private final Context mContext;
     private int mProgram;
 
-    private static final String UNIFORM_COLOR = "u_Color";
-    private int mUniformColorLocation;
-
-    private static final String ATTRIBUTE_POSITION = "a_Position";
     private int mAttributePositionLocation;
+    private int mAttributeColorLocation;
+
+    private static final String ATTRIBUTE_COLOR = "a_Color";
+    private static final String ATTRIBUTE_POSITION = "a_Position";
+
 
     public AirHockeyRenderer(Context context) {
         mContext = context;
 
         float[] tableVerticesWithTriangles = {
-                //traingle 1
-                -0.5f, -0.5f,
-                0.5f, 0.5f,
-                -0.5f, 0.5f,
-                // Triangle 2
-                -0.5f, -0.5f,
-                0.5f, -0.5f,
-                0.5f, 0.5f,
+                // Order of coordinates: X, Y, R, G, B
+                // Triangle Fan
+                0f, 0f, 1f, 1f, 1f,
+                -0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
+                0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
+                0.5f, 0.5f, 0.7f, 0.7f, 0.7f,
+                -0.5f, 0.5f, 0.7f, 0.7f, 0.7f,
+                -0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
                 // Line 1
-                -0.5f, 0f,
-                0.5f, 0f,
+                -0.5f, 0f, 1f, 0f, 0f,
+                0.5f, 0f, 1f, 0f, 0f,
                 // Mallets
-                0f, -0.25f,
-                0f, 0.25f
+                0f, -0.25f, 0f, 0f, 1f,
+                0f, 0.25f, 1f, 0f, 0f
         };
 
         vertexData = ByteBuffer
@@ -82,15 +85,22 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
         glUseProgram(mProgram);
 
-        mUniformColorLocation = glGetUniformLocation(mProgram, UNIFORM_COLOR);
 
         mAttributePositionLocation = glGetAttribLocation(mProgram, ATTRIBUTE_POSITION);
+        mAttributeColorLocation = glGetAttribLocation(mProgram, ATTRIBUTE_COLOR);
+
 
         vertexData.position(0);
         glVertexAttribPointer(mAttributePositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT,
-                false, 0, vertexData);
+                false, STRIDE, vertexData);
 
         glEnableVertexAttribArray(mAttributePositionLocation);
+
+        vertexData.position(POSITION_COMPONENT_COUNT);
+        glVertexAttribPointer(mAttributeColorLocation, COLOR_COMPONENT_COUNT, GL_FLOAT,
+                false, STRIDE, vertexData);
+
+        glEnableVertexAttribArray(mAttributeColorLocation);
     }
 
     @Override
@@ -104,19 +114,19 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
         glClear(GL_COLOR_BUFFER_BIT);
 
         //draw the rectangle
-        glUniform4f(mUniformColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+//        glUniform4f(mUniformColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 6);
 
         //draw the line
-        glUniform4f(mUniformColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
+//        glUniform4f(mUniformColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
         glDrawArrays(GL_LINES, 6, 2);
 
         //draw the bottom mallet
-        glUniform4f(mUniformColorLocation, 0.0f, 0.0f, 1.0f, 1.0f);
+//        glUniform4f(mUniformColorLocation, 0.0f, 0.0f, 1.0f, 1.0f);
         glDrawArrays(GL_POINTS, 8, 1);
 
         //draw the upper mallet
-        glUniform4f(mUniformColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
-        glDrawArrays(GL_POINTS, 9, 2);
+//        glUniform4f(mUniformColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
+        glDrawArrays(GL_POINTS, 9, 1);
     }
 }
